@@ -1,18 +1,61 @@
-name: Docker Image CI
+name: Application Build & Release
 
 on:
-  workflow_run:
-    workflows: ["Java CI with Maven"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
 
 jobs:
-
   build:
-
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Setup Maven settings
+      uses: s4u/maven-settings-action@v2.4.0
+      with:
+        servers: |
+          [{
+            "id": "github-packages",
+            "username": "${{ secrets.PACKAGE_GITHUB_USERNAME }}",
+            "password": "${{ secrets.PACKAGE_GITHUB_PASSWORD }}"
+          }]
+
+    - name: Checkout
+      uses: actions/checkout@master
+      with:
+        fetch-depth: '0'
+
+    - name: Identify new version
+      uses: mathieudutour/github-tag-action@v5.5
+      id: identify_new_version
+      with:
+        github_token: ${{ github.token }}
+        DRY_RUN: true
+
+    - name: Update Maven version
+      run: mvn versions:set -DnewVersion=${{ steps.identify_new_version.outputs.new_version }}
+
+    - name: Build
+      run: |
+        mvn package \
+        -Dquarkus.container-image.build=true \
+        -Dquarkus.container-image.push=true \
+        -Dquarkus.container-image.tag=${{ steps.identify_new_version.outputs.new_version }} \
+        -Dquarkus.container-image.username=gopaldassharma \
+        -Dquarkus.container-image.password=${{ github.token }}
+
+    - name: Tag new version and push tag
+      uses: mathieudutour/github-tag-action@v5.5
+      id: tag_new_version
+      with:
+        github_token: ${{ github.token }}
+
+    - name: Create a GitHub release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        tag_name: ${{ steps.tag_new_version.outputs.new_tag }}
+        release_name: Release ${{ steps.tag_new_version.outputs.new_tag }}
+        body: ${{ steps.tag_new_version.outputs.changelog }}
