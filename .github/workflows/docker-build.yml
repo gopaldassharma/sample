@@ -3,7 +3,7 @@ name: Docker Build
 on:
   push:
     branches:
-      - main  # Replace with your branch
+      - master  # Replace with your branch
 
 jobs:
   build:
