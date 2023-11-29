@@ -24,6 +24,6 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t your-image-name:tag .
-          docker tag your-image-name:tag your-dockerhub-username/your-image-name:tag
-          docker push your-dockerhub-username/your-image-name:tag
+          docker build -t my-docker-image:latest .
+          docker tag my-docker-image:latest gosharmatelia/my-docker-image:latest
+          docker push gosharmatelia/my-docker-image:latest
