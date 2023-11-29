@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . .
 
 # Build the application with Maven
-RUN ./mvnw package -DskipTests
+RUN ./mvnw package
 
 # Stage 2: Create the final Docker image
 FROM registry.access.redhat.com/ubi8/openjdk-17:1.17
