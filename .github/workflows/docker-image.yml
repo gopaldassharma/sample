@@ -62,8 +62,8 @@ jobs:
         release_name: Release ${{ steps.tag_new_version.outputs.new_tag }}
         body: ${{ steps.tag_new_version.outputs.changelog }}
         
-    # - name: Login to GitHub Packages Docker registry
-    #   run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u ${{ github.repository_owner }} --password-stdin
+    - name: Login to GitHub Packages Docker registry
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u ${{ github.repository_owner }} --password-stdin
 
     # - name: Build and push Docker image
     #   run: |
