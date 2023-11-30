@@ -46,7 +46,7 @@ jobs:
         -Dquarkus.container-image.password=${{ github.token }}
 
     - name: Tag new version and push tag
-      uses: mathieudutour/github-tag-action@v5.5
+      uses: mathieudutour/github-tag-action@v6.1
       id: tag_new_version
       with:
         github_token: ${{ github.token }}
