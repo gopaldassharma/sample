@@ -42,10 +42,8 @@ jobs:
         -Dquarkus.container-image.build=true \
         -Dquarkus.container-image.push=true \
         -Dquarkus.container-image.tag=${{ steps.identify_new_version.outputs.new_version }} \
-        # -Dquarkus.container-image.username=${{secrets.DOCKER_USERNAME}} \
-        # -Dquarkus.container-image.password=${{secrets.DOCKER_PASSWORD}}
-        -Dquarkus.container-image.username=gosharmatelia
-        -Dquarkus.container-image.password=Gopal#040
+        -Dquarkus.container-image.username=${{secrets.DOCKER_USERNAME}} \
+        -Dquarkus.container-image.password=${{secrets.DOCKER_PASSWORD}}
 
     - name: Tag new version and push tag
       uses: mathieudutour/github-tag-action@v6.1
