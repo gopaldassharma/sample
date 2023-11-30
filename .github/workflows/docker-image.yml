@@ -25,11 +25,7 @@ jobs:
       uses: actions/checkout@master
       with:
         fetch-depth: '0'
-    - name: Set Java Version
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-
+        
     - name: Identify new version
       uses: mathieudutour/github-tag-action@v5.5
       id: identify_new_version
