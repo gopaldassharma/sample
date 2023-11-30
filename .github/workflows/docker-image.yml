@@ -42,8 +42,8 @@ jobs:
         -Dquarkus.container-image.build=true \
         -Dquarkus.container-image.push=true \
         -Dquarkus.container-image.tag=${{ steps.identify_new_version.outputs.new_version }} \
-        -Dquarkus.container-image.username=gopaldassharma \
-        -Dquarkus.container-image.password=${{ github.token }}
+        -Dquarkus.container-image.username=${{secrets.DOCKER_USERNAME}} \
+        -Dquarkus.container-image.password=${{secrets.DOCKER_PASSWORD}}
 
     - name: Tag new version and push tag
       uses: mathieudutour/github-tag-action@v6.1
@@ -60,10 +60,10 @@ jobs:
         release_name: Release ${{ steps.tag_new_version.outputs.new_tag }}
         body: ${{ steps.tag_new_version.outputs.changelog }}
         
-    - name: Login to GitHub Packages Docker registry
-      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u ${{ github.repository_owner }} --password-stdin
+    # - name: Login to GitHub Packages Docker registry
+    #   run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u ${{ github.repository_owner }} --password-stdin
 
-    - name: Build and push Docker image
-      run: |
-        docker build -t docker.pkg.github.com/gopaldassharma/sample/myimage:latest .
-        docker push docker.pkg.github.com/gopaldassharma/sample/myimage:latest
+    # - name: Build and push Docker image
+    #   run: |
+    #     docker build -t docker.pkg.github.com/gopaldassharma/sample/myimage:latest .
+    #     docker push docker.pkg.github.com/gopaldassharma/sample/myimage:latest
