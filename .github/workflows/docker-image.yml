@@ -26,12 +26,12 @@ jobs:
       with:
         fetch-depth: '0'
         
-    # - name: Identify new version
-    #   uses: mathieudutour/github-tag-action@v5.5
-    #   id: identify_new_version
-    #   with:
-    #     github_token: ${{ github.token }}
-    #     DRY_RUN: true
+    - name: Identify new version
+      # uses: mathieudutour/github-tag-action@v5.5
+      id: identify_new_version
+      with:
+        github_token: ${{ github.token }}
+        DRY_RUN: true
 
     - name: Update Maven version
       run: mvn versions:set -DnewVersion=${{ steps.identify_new_version.outputs.new_version }}
