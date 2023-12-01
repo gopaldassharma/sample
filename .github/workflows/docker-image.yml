@@ -1,72 +1,28 @@
-name: Application Build & Release
+name: Docker Build and Push
 
 on:
   push:
     branches:
-      - master
+      - master  # Change this to your main branch name
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04
-    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
+  build-and-push:
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Setup Maven settings
-      uses: s4u/maven-settings-action@v2.4.0
-      with:
-        servers: |
-          [{
-            "id": "github-packages",
-            "username": "${{ secrets.PACKAGE_GITHUB_USERNAME }}",
-            "password": "${{ secrets.PACKAGE_GITHUB_PASSWORD }}"
-          }]
+      - name: Checkout code
+        uses: actions/checkout@v2  # This step checks out your code
 
-    - name: Checkout
-      uses: actions/checkout@master
-      with:
-        fetch-depth: '0'
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build the Docker image
+        run: |
+          docker build -t gosharmatelia/myapp:latest .
         
-    - name: Identify new version
-      uses: mathieudutour/github-tag-action@v6.1
-      id: identify_new_version
-      with:
-        github_token: ${{ github.token }}
-        DRY_RUN: true
-
-    - name: Update Maven version
-      run: mvn versions:set -DnewVersion=${{ steps.identify_new_version.outputs.new_version }}
-    - name: Docker login
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin docker.io/gosharmatelia
-
-      
-    - name: Build
-      run: |
-        mvn package \
-        -Dquarkus.container-image.build=true \
-        -Dquarkus.container-image.push=true \
-        -Dquarkus.container-image.tag=${{ steps.identify_new_version.outputs.new_version }} \
-        # -Dquarkus.container-image.username=${{secrets.DOCKER_USERNAME}} \
-        # -Dquarkus.container-image.password=${{secrets.DOCKER_PASSWORD}}
-
-    - name: Tag new version and push tag
-      uses: mathieudutour/github-tag-action@v6.1
-      id: tag_new_version
-      with:
-        github_token: ${{ github.token }}
-
-    - name: Create a GitHub release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      with:
-        tag_name: ${{ steps.tag_new_version.outputs.new_tag }}
-        release_name: Release ${{ steps.tag_new_version.outputs.new_tag }}
-        body: ${{ steps.tag_new_version.outputs.changelog }}
-        
-    # - name: Login to GitHub Packages Docker registry
-    #   run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u ${{ github.repository_owner }} --password-stdin
-
-    # - name: Build and push Docker image
-    #   run: |
-    #     docker build -t docker.pkg.github.com/gopaldassharma/sample/myimage:latest .
-    #     docker push docker.pkg.github.com/gopaldassharma/sample/myimage:latest
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push gosharmatelia/myapp:latest
