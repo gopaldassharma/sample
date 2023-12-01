@@ -21,6 +21,7 @@ jobs:
 
       - name: Build the Docker image
         run: |
+          ./mvnw package
           docker build -t gosharmatelia/myapp:latest .
         
       - name: Push Docker image to Docker Hub
